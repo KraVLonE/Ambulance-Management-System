@@ -26,7 +26,7 @@ The **Ambulance Management and Routing System** is a web application designed to
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/ambulance-management-system.git
+   git clone https://github.com/KraVLonE/ambulance-management-system.git
    cd ambulance-management-system
    ```
 
