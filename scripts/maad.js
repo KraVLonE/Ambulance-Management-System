@@ -350,7 +350,7 @@ async function requestAmbulance(NodeId) {
     const card = document.createElement("card");
     card.innerHTML = `<div class="card">
   <div>
-  <img src="../assets/ambulance.png" alt="ambulance">
+  <img src="https://KraVLonE.github.io/Ambulance-Management-System/assets/ambulance.png" alt="ambulance">
   </div>
   <div id="pathcontainer">
   <div><h3>Hospital area:${nodesonSpecialCase}</h3>
@@ -527,7 +527,7 @@ async function requestAmbulance(NodeId) {
     const card = document.createElement("card");
     card.innerHTML = `<div class="card">
   <div>
-  <img src="../assets/ambulance.png" alt="ambulance">
+  <img src="https://KraVLonE.github.io/Ambulance-Management-System/assets/ambulance.png" alt="ambulance">
   </div>
   <div id="pathcontainer">
   <div><h3>Hospital node:${nearestHospital}</h3>
