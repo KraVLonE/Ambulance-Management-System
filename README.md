@@ -1,84 +1,98 @@
----
+# Ambulance Management & Routing System
 
-# Ambulance Management and Routing System
-
-The **Ambulance Management and Routing System** is a web application designed to assist in dispatching ambulances based on geographical location and availability. It features a map-based interface, hospital availability tracking, shortest path calculation for ambulances, and real-time updates on ambulance dispatch status.
+A modern, full-stack web application for real-time ambulance dispatching and routing. This system allows users to request ambulances from any location on the map, calculates the shortest path using OSRM, and dispatches the nearest available unit with real-time animation.
 
 ## Features
 
-- **Map-Based Interface**: Visual representation of areas that can request ambulances.
-- **Hospital and Ambulance Availability**: Track the number of ambulances available at each hospital.
-- **Shortest Path Calculation**: Uses Dijkstra's algorithm to find the nearest hospital with available ambulances.
-- **Real-Time Ambulance Dispatch**: Track the estimated time of arrival and route taken by the ambulance.
-- **Data Visualization**: Real-time charts to show hospital availability and road occupancy levels.
+*   **Real-time Dispatch**: Request an ambulance from **any point** on the map.
+*   **Intelligent Routing**: Uses [OSRM](http://project-osrm.org/) (Open Source Routing Machine) to calculate the actual shortest path based on road networks, not just straight lines.
+*   **Multi-Dispatch Architecture**: Supports multiple concurrent ambulance requests with independent animated paths.
+*   **Hospital Management**: 
+    *   Edit ambulance availability for each hospital directly from the sidebar.
+*   **Interactive Map**: Powered by **Leaflet** & **React-Leaflet**.
+    *   Click anywhere to pin a pickup location.
+    *   Smooth animations for ambulance travel.
+    *   Visual indicators for hospitals and active routes.
 
-## Technologies Used
+## Tech Stack
 
-- **Frontend**: HTML, CSS, JavaScript
-- **Chart Library**: [Chart.js](https://www.chartjs.org/) for visualizing data.
-- **Algorithms**: Dijkstra's Algorithm for shortest path calculation.
-- **Dependencies**: jQuery for DOM manipulation.
+### Frontend
+-   **React** (Vite)
+-   **Leaflet / React-Leaflet** (Maps)
+-   **Tailwind CSS** (Styling)
+-   **Socket.io Client** (Real-time updates)
 
-## Getting Started
+### Backend
+-   **Node.js / Express**
+-   **SQLite** (Database)
+-   **Socket.io** (WebSocket communication)
+-   **OSRM Public API** (Routing)
 
-### Installation
+## Installation & Setup
 
-1. Clone the repository:
+1.  **Clone the Repository**
+    ```bash
+    git clone https://github.com/KraVLonE/ambulance-management-system.git
+    cd ambulance-management-system
+    ```
 
-   ```bash
-   git clone https://github.com/KraVLonE/ambulance-management-system.git
-   cd ambulance-management-system
-   ```
+2.  **Install Dependencies**
+    
+    *Backend*
+    ```bash
+    cd server
+    npm install
+    ```
 
-2. Open `index.html` in a browser to view the application:
+    *Frontend*
+    ```bash
+    cd ../app
+    npm install
+    ```
 
-   ```bash
-   open index.html
-   ```
+3.  **Start the Application**
 
-### Project Structure
+    You need to run both the backend and frontend terminals.
 
-- **index.html**: Main HTML file with map areas for ambulance requests.
-- **style.css**: CSS for styling the map, tables, and cards.
-- **maad.js**: JavaScript file with the main logic for dispatching ambulances, finding the shortest path, and updating hospital data.
-- **assets**: Directory for images, such as the ambulance icons and hospital markers.
+    *Terminal 1: Backend*
+    ```bash
+    cd server
+    npm start
+    ```
+    (Server runs on http://localhost:3000)
 
-### Usage
+    *Terminal 2: Frontend*
+    ```bash
+    cd app
+    npm run dev
+    ```
+    (App usually runs on http://localhost:5173)
 
-1. **Requesting an Ambulance**: Click on an area on the map to request an ambulance. 
-2. **Viewing ETA and Path**: After the request, the estimated time and route will be displayed.
-3. **Real-Time Data**: View the number of ambulances available per hospital and road occupancy status in the sidebar.
+4.  **Open in Browser**
+    Visit the URL provided by Vite (e.g., `http://localhost:5173`) to use the application.
 
-## Code Overview
+## Usage Guide
 
-### Core Functions in `maad.js`
+1.  **Requesting an Ambulance**:
+    *   Click **anywhere** on the map.
+    *   A modal will appear confirming the location.
+    *   Click "Request Ambulance".
+    *   An ambulance will be dispatched from the nearest capable hospital.
 
-- **findNearestHospital(nodeId)**: Finds the nearest hospital with an available ambulance.
-- **requestAmbulance(nodeId)**: Initiates the ambulance request process, dispatches the ambulance, and updates availability.
-- **dijkstra(edges, startNode, endNode)**: Implements Dijkstra’s algorithm to find the shortest path from the requested node to the hospital.
-- **calculateEstimatedTime(result)**: Calculates the estimated time of arrival based on distance and road occupancy.
+2.  **Managing Availability**:
+    *   In the Sidebar, hover over any hospital card.
+    *   Click the **Edit** button.
+    *   Update the number of available ambulances
+    *   Click the checkmark to save.
 
-## Improvements and Future Enhancements
-
-1. **Enhanced UI**: Improve responsiveness and mobile support.
-2. **Database Integration**: Store hospital and ambulance data in a backend database for real-time updates.
-3. **Live Location Tracking**: Integrate live tracking for ambulances on the map.
-4. **Notification System**: Add notifications for hospital staff on new requests.
+3.  **Multiple Requests**:
+    *   You can make multiple requests simultaneously.
+    *   Watch independent ambulances dispatch to different locations.
 
 ## Contributing
 
-1. Fork the repository.
-2. Create a new branch for your feature (`git checkout -b feature-name`).
-3. Commit your changes (`git commit -m 'Add feature name'`).
-4. Push to the branch (`git push origin feature-name`).
-5. Open a Pull Request.
+Contributions are welcome! Please fork the repository and submit a pull request.
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
-
-## Contact
-
-For questions, please contact [b.sai.sannidh@gmail.com](mailto:b.sai.sannidh@gmail.com) or open an issue on the repository.
-
----
+Distributed under the MIT License.
