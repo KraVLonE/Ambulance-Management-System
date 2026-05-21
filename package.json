@@ -1,0 +1,15 @@
+{
+  "name": "ambulance-management-system",
+  "version": "1.0.0",
+  "description": "Ambulance Management System (Monolithic Setup)",
+  "scripts": {
+    "install-all": "npm install --prefix server && npm install --prefix app",
+    "build": "npm run build --prefix app",
+    "start": "npm start --prefix server"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "KraVLonE",
+  "license": "MIT"
+}

@@ -2,6 +2,8 @@ const express = require('express');
 const http = require('http');
 const { Server } = require("socket.io");
 const cors = require('cors');
+const helmet = require('helmet');
+const compression = require('compression');
 const { db, initializeDatabase } = require('./database');
 const { nodeCoords } = require('./pathfinding');
 const path = require('path');
@@ -16,6 +18,14 @@ const io = new Server(server, {
 });
 
 app.use(cors());
+app.use(helmet({
+    contentSecurityPolicy: false, // Disabled for React/Vite development and inline scripts if any
+    crossOriginResourcePolicy: false,
+    referrerPolicy: {
+        policy: 'strict-origin-when-cross-origin', // OpenStreetMap requires a Referer header
+    },
+}));
+app.use(compression());
 app.use(express.json());
 
 // Initialize DB
