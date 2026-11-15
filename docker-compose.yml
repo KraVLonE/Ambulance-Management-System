@@ -1,0 +1,47 @@
+# Production on the Oracle server, behind the shared Traefik proxy (network: traefik-public).
+# Needs a .env file next to this one (not committed) with POSTGRES_PASSWORD=...
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://ambulance:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/ambulance
+      SETUP_TOKEN: ${SETUP_TOKEN:-}
+      SESSION_SECRET: ${SESSION_SECRET:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - traefik-public
+      - default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-public"
+      - "traefik.http.routers.ambulance.rule=Host(`ambulance-management.kravlone.xyz`)"
+      - "traefik.http.routers.ambulance.entrypoints=websecure"
+      - "traefik.http.routers.ambulance.tls.certresolver=letsencrypt"
+      - "traefik.http.services.ambulance.loadbalancer.server.port=3000"
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ambulance
+      POSTGRES_DB: ambulance
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ambulance -d ambulance"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - default
+
+volumes:
+  pgdata:
+
+networks:
+  traefik-public:
+    external: true
