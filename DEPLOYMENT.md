@@ -22,44 +22,35 @@ Before deploying, test the production build locally:
 3.  **Visit**: `http://localhost:3000`
     You should see the full application working. The backend is now serving the frontend.
 
-## 2. Deploying to Render.com (Recommended & Free)
+## 2. Production (Docker)
 
-Render is a cloud provider that makes deployment easy. We've included a `render.yaml` configuration file for a **1-Click Deploy**.
+Production runs on an Oracle Cloud server behind a shared Traefik reverse proxy, at **https://ambulance-management.kravlone.xyz**. `docker-compose.yml` starts two containers:
 
-1.  **Push to GitHub**: Ensure your code is pushed to your repository.
-2.  **Create a Blueprint**:
-    *   Go to [dashboard.render.com](https://dashboard.render.com/) and create a free account.
-    *   Click **New +** -> **Blueprint**.
-    *   Connect your GitHub repository.
-3.  **Deploy**: 
-    *   Render will automatically detect the `render.yaml` file.
-    *   Click "Apply". Render will run the `npm run install-all`, build the frontend, and start your Node server automatically.
+*   `app`: built from the `Dockerfile` (builds the React app, then runs the Node server on port 3000). Traefik labels route the domain to it and get a Let's Encrypt certificate.
+*   `db`: PostgreSQL 17, with data in the `pgdata` volume. It is not reachable from outside the server.
 
-### Manual Setup (If not using Blueprint)
-If you create a standard Web Service instead of a Blueprint:
-*   **Build Command**: `npm run install-all && npm run build`
-*   **Start Command**: `npm start`
-*   **Environment Variables**: `NODE_ENV = production`
+First deploy on the server (Traefik is already running and the external `traefik-public` network exists):
+```bash
+git clone https://github.com/KraVLonE/Ambulance-Management-System.git ambulance && cd ambulance
+printf "POSTGRES_PASSWORD=%s\n" "$(openssl rand -hex 24)" > .env && chmod 600 .env
+docker compose up -d --build
+```
+Update: `git pull && docker compose up -d --build`.
 
-## 3. Alternative Free Tiers: Koyeb / Fly.io
-
-The process is similar as we have a unified root `package.json`:
--   **Build Command**: `npm run install-all && npm run build`
--   **Start Command**: `npm start`
--   **Port**: These platforms automatically inject a `PORT` environment variable, which our server listens to.
+Optional values in `.env`: `SETUP_TOKEN`, `SESSION_SECRET` (see below).
 
 ## Database
 The app uses **PostgreSQL** when `DATABASE_URL` is set, and otherwise a local **SQLite** file.
 
-*   **Production**: attach a PostgreSQL database and set `DATABASE_URL` (on Render: create a PostgreSQL instance and uncomment the block in `render.yaml`). Tables and starter data are created on first start.
-*   **Without a database**: on most free hosts the filesystem is **ephemeral**, so the SQLite file, including user accounts, is wiped on every restart or redeploy. Fine for a throwaway demo only.
+*   **Production**: `docker-compose.yml` sets `DATABASE_URL` to the bundled Postgres container. Tables and starter data are created on first start.
+*   **Local development**: without `DATABASE_URL`, a SQLite file (`server/ambulance.db`, git-ignored) is created automatically.
 *   Existing SQLite data is not copied to PostgreSQL automatically; a fresh PostgreSQL database starts from the seed data.
 
 ## First sign-in
 There are no default credentials. The first person to open a new deployment is asked to create the admin account. On a public URL, set `SETUP_TOKEN` to a secret value first: creating that account then requires the code, so a stranger can't claim it before you do.
 
 ## Notes for production
-*   Serve the app over **HTTPS**; session cookies are marked `Secure` automatically when the request arrives over HTTPS (including behind the host's proxy).
+*   Serve the app over **HTTPS**; session cookies are marked `Secure` automatically when the request arrives over HTTPS (including behind the Traefik proxy).
 *   The app is designed to run as a **single instance**: live trips and their timers are held in memory. Running several instances behind a load balancer is not supported.
 *   The public tracking page (`/track/...`) is reachable without an account by anyone who has the link. It shows only that one trip, without notes or staff names.
 *   Cross-origin requests are blocked by default. If the frontend is hosted separately, set `CORS_ORIGIN` to its URL.
@@ -74,4 +65,4 @@ There are no default credentials. The first person to open a new deployment is a
     *   Socket.io real-time updates.
     *   The dispatch engine and database access.
     *   OSRM Proxying.
-*   **Solution**: You must use a host that supports long-running Node.js processes, like **Render**, **Railway**, **Heroku**, or a VPS (DigitalOcean/AWS). The instructions above for Render cover both the frontend and backend in one place.
+*   **Solution**: You must use a host that supports long-running Node.js processes, such as a VPS. The Docker setup above runs the frontend and backend as one service.
