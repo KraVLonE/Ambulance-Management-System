@@ -23,7 +23,12 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]|^motion$' }],
     },
+  },
+  {
+    // Build config and tests run in Node, not the browser.
+    files: ['*.config.js', 'src/**/*.test.{js,jsx}', 'src/test/**'],
+    languageOptions: { globals: { ...globals.node } },
   },
 ])

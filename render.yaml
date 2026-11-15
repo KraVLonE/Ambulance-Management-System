@@ -9,3 +9,12 @@ services:
         value: production
       - key: NODE_VERSION
         value: 20
+      # Data is lost on every redeploy unless a database is attached.
+      # Create a Render PostgreSQL instance and uncomment:
+      # - key: DATABASE_URL
+      #   fromDatabase:
+      #     name: ambulance-db
+      #     property: connectionString
+      # Recommended: require a code to create the first admin account.
+      # - key: SETUP_TOKEN
+      #   sync: false

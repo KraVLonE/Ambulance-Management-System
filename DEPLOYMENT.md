@@ -48,9 +48,22 @@ The process is similar as we have a unified root `package.json`:
 -   **Start Command**: `npm start`
 -   **Port**: These platforms automatically inject a `PORT` environment variable, which our server listens to.
 
-## Note on Database
-This app uses **SQLite** (`ambulance.db`). On most serverless platforms (Render free tier, Heroku), the filesystem is **ephemeral**. This means if the web service restarts/redeploys, **the database will reset**.
-*   **For Demo**: This is fine.
+## Database
+The app uses **PostgreSQL** when `DATABASE_URL` is set, and otherwise a local **SQLite** file.
+
+*   **Production**: attach a PostgreSQL database and set `DATABASE_URL` (on Render: create a PostgreSQL instance and uncomment the block in `render.yaml`). Tables and starter data are created on first start.
+*   **Without a database**: on most free hosts the filesystem is **ephemeral**, so the SQLite file, including user accounts, is wiped on every restart or redeploy. Fine for a throwaway demo only.
+*   Existing SQLite data is not copied to PostgreSQL automatically; a fresh PostgreSQL database starts from the seed data.
+
+## First sign-in
+There are no default credentials. The first person to open a new deployment is asked to create the admin account. On a public URL, set `SETUP_TOKEN` to a secret value first: creating that account then requires the code, so a stranger can't claim it before you do.
+
+## Notes for production
+*   Serve the app over **HTTPS**; session cookies are marked `Secure` automatically when the request arrives over HTTPS (including behind the host's proxy).
+*   The app is designed to run as a **single instance**: live trips and their timers are held in memory. Running several instances behind a load balancer is not supported.
+*   The public tracking page (`/track/...`) is reachable without an account by anyone who has the link. It shows only that one trip, without notes or staff names.
+*   Cross-origin requests are blocked by default. If the frontend is hosted separately, set `CORS_ORIGIN` to its URL.
+*   Routing and address lookup use the free public OSRM and Nominatim servers, which are rate limited and meant for light use. For real traffic, host your own and set `OSRM_URL` / `NOMINATIM_URL`.
 
 ## FAQ
 
@@ -59,6 +72,6 @@ This app uses **SQLite** (`ambulance.db`). On most serverless platforms (Render 
 *   **GitHub Pages** and **Vercel** are designed for *static* or *frontend-only* sites.
 *   This application has a **Node.js Backend** that needs to run continuously for:
     *   Socket.io real-time updates.
-    *   SQLite database.
+    *   The dispatch engine and database access.
     *   OSRM Proxying.
 *   **Solution**: You must use a host that supports long-running Node.js processes, like **Render**, **Railway**, **Heroku**, or a VPS (DigitalOcean/AWS). The instructions above for Render cover both the frontend and backend in one place.

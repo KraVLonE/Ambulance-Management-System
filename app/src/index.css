@@ -2,20 +2,168 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html { color-scheme: light; }
+  html.dark { color-scheme: dark; }
+  body { @apply bg-background text-text dark:bg-slate-950 dark:text-slate-100; }
+}
+
+/* Shared building blocks, so light and dark styling live in one place. */
+@layer components {
+  .surface { @apply bg-white dark:bg-slate-900; }
+  .card { @apply bg-white border border-gray-200 rounded-lg dark:bg-slate-900 dark:border-slate-700; }
+  .hairline { @apply border-gray-200 dark:border-slate-700; }
+  .muted { @apply text-gray-500 dark:text-slate-400; }
+  .heading { @apply text-gray-800 dark:text-slate-100; }
+  .section-title { @apply text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-slate-400; }
+  .input {
+    @apply w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm bg-white text-gray-900
+      focus:outline-none focus:ring-2 focus:ring-secondary/50
+      dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-500;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5
+      text-sm font-medium text-gray-700 hover:bg-gray-50
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-1
+      disabled:opacity-50 disabled:cursor-not-allowed
+      dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700 dark:focus-visible:ring-offset-slate-900;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-white
+      hover:bg-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
+      disabled:opacity-50 disabled:cursor-not-allowed dark:focus-visible:ring-offset-slate-900;
+  }
+  .link { @apply text-secondary hover:underline dark:text-sky-400; }
+  .map-chip {
+    @apply bg-white/95 text-text text-xs sm:text-sm font-semibold rounded-full shadow-md border border-gray-200
+      dark:bg-slate-800/95 dark:text-slate-100 dark:border-slate-600;
+  }
+}
+
 /* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+.dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+/* --- Map markers (Leaflet divIcons) --- */
+
+/* Hospital: pill with a cross and the live ambulance count */
+.hosp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 26px;
+  border-radius: 13px;
+  background: #fff;
+  border: 2px solid var(--level);
+  color: var(--level);
+  font: 700 12px/1 system-ui, sans-serif;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s;
+}
+.hosp:hover { transform: scale(1.1); }
+.hosp--good { --level: #15803d; }
+.hosp--low { --level: #b45309; }
+.hosp--none { --level: #dc2626; background: #fee2e2; }
+.hosp--edit { cursor: grab; border-style: dashed; }
+.hosp__cross { font-size: 11px; }
+.hosp__count { color: #1d3557; font-variant-numeric: tabular-nums; }
+
+/* Ambulance: round badge ringed in the dispatch's severity colour */
+.amb {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--sev);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.amb img {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.2s;
+}
+.amb-flip .amb img { transform: scaleX(-1); }
+
+/* Pickup point: dot with an expanding ring while help is on the way */
+.pickup {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--sev);
+  border: 3px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+.pickup--pulse::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 2px solid var(--sev);
+  animation: pickup-ring 1.6s ease-out infinite;
+}
+/* Still waiting for a unit: hollow, so it reads as "not yet served" */
+.pickup--waiting { background: #fff; border-color: var(--sev); }
+@keyframes pickup-ring {
+  from { transform: scale(1); opacity: 0.9; }
+  to { transform: scale(3.2); opacity: 0; }
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
+/* Location being confirmed: classic teardrop pin */
+.pin {
+  width: 28px;
+  height: 28px;
+  background: #e63946;
+  border: 3px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg) scale(0.8);
+  transform-origin: 50% 100%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  animation: pin-drop 0.25s ease-out;
+}
+@keyframes pin-drop {
+  from { opacity: 0; translate: 0 -14px; }
+  to { opacity: 1; translate: 0 0; }
 }
 
-::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
+.leaflet-container { font-family: inherit; }
+
+/* Dark theme: recolour the standard map tiles instead of loading a second
+   tile set. Inverting flips light/dark; the hue rotation puts water and parks
+   back to blue and green. */
+.dark .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.88) saturate(0.7); }
+.dark .leaflet-container { background: #0f172a; }
+.dark .leaflet-bar a,
+.dark .leaflet-control-attribution { background: #1e293b; color: #cbd5e1; border-color: #334155; }
+.dark .leaflet-control-attribution a { color: #7dd3fc; }
+.dark .leaflet-popup-content-wrapper,
+.dark .leaflet-popup-tip,
+.dark .leaflet-tooltip { background: #1e293b; color: #e2e8f0; border-color: #334155; }
+.dark .leaflet-tooltip-top::before { border-top-color: #1e293b; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pickup--pulse::after,
+  .pin { animation: none; }
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
+/* --- Chart colours by role (analytics). Dark values are chosen for the dark
+   surface, not an automatic flip. --- */
+.viz-root {
+  --viz-series: #2a78d6;
+  --viz-grid: #e1e0d9;
+  --viz-axis: #c3c2b7;
+  --viz-muted: #6b6a65;
+}
+.dark .viz-root {
+  --viz-series: #3987e5;
+  --viz-grid: #2c2c2a;
+  --viz-axis: #4a4a46;
+  --viz-muted: #a3a29b;
 }
